@@ -23,10 +23,10 @@ declare interface Host {
 
 class Host extends EventEmitter {
 
-    server: Http.Server;
-    port?: number;
-    settings: Settings;
-    handlers: Map<Method, ListenerGroup>;
+    private server: Http.Server;
+    public port?: number;
+    public settings: Settings;
+    private handlers: Map<Method, ListenerGroup>;
 
     constructor() {
 

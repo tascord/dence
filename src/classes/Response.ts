@@ -1,5 +1,6 @@
+import { existsSync, readFileSync } from "fs";
 import { ServerResponse } from "http";
-import { ContentType, CORSHeaders } from "../Constants";
+import { ContentType, CORSHeaders, InferContentTypeFromFilename } from "../Constants";
 
 declare interface Response {
     setHeader(header: 'Content-Type', value: ContentType): Response;
@@ -9,8 +10,8 @@ declare interface Response {
 
 class Response {
 
-    raw: ServerResponse;
-    ended: boolean;
+    private raw: ServerResponse;
+    private ended: boolean;
 
     constructor(raw: ServerResponse) {
 
@@ -19,7 +20,7 @@ class Response {
 
     }
 
-    status(code: number): Response {
+    public status(code: number): Response {
 
         if (this.ended) throw new TypeError("Response already concluded.");
         if (isNaN(code) || !isFinite(code) || parseInt(code.toString()) != code) {
@@ -31,26 +32,52 @@ class Response {
 
     }
 
-    json(object: Object, extended: boolean = false): Response {
+    public json(json: object, extended: boolean = false): Response {
 
         if (this.ended) throw new TypeError("Response already concluded.");
 
-        this.raw.setHeader('Content-Type', 'application/json');
-        this.raw.write(!extended ? JSON.stringify(object) : JSON.stringify(object, null, 4), "utf8");
+        if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', 'application/json');
+        this.raw.write(!extended ? JSON.stringify(json) : JSON.stringify(json, null, 4), "utf8");
         this.end();
 
         return this;
 
     }
 
-    setHeader(header: string, value: string): Response {
+    public text(text: string): Response {
+
+        if (this.ended) throw new TypeError("Response already concluded.");
+
+        if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', 'text/plain');
+        this.raw.write(text);
+        this.end();
+
+        return this;
+
+    }
+
+    public sendFile(path: string): Response {
+
+        if (this.ended) throw new TypeError("Response already concluded.");
+        if (!existsSync(path)) throw new TypeError("No file exists at path: " + path);
+
+        if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', InferContentTypeFromFilename(path));
+
+        this.raw.write(readFileSync(path));
+        this.end();
+
+        return this;
+
+    }
+
+    public setHeader(header: string, value: string): Response {
 
         this.raw.setHeader(header, value);
         return this;
 
     }
 
-    end() {
+    public end() {
 
         if (this.ended) return;
 

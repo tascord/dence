@@ -2,10 +2,9 @@
   "name": "dence",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/Dence.js",
   "scripts": {
-    "start": "node dist/src/index.js",
-    "develop": "tsc-watch --project . --onSuccess \"nodemon dist/test/index.js\""
+    "develop": "tsc-watch --project . --onSuccess \"nodemon dist/test/test.js\""
   },
   "author": "tascord",
   "license": "ISC",

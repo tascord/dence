@@ -5,4 +5,4 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Dence_1 = __importDefault(require("./classes/Dence"));
 exports.default = Dence_1.default;
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=Dence.js.map

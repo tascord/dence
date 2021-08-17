@@ -1,1 +1,1 @@
-{"version":3,"file":"Dence.js","sourceRoot":"","sources":["../../classes/Dence.ts"],"names":[],"mappings":";;;;;AAAA,gDAA0B;AAE1B,SAAwB,KAAK;IAEzB,OAAO,IAAI,cAAI,EAAE,CAAC;AAEtB,CAAC;AAJD,wBAIC"}
+{"version":3,"file":"Dence.js","sourceRoot":"","sources":["../../src/classes/Dence.ts"],"names":[],"mappings":";;;;;AAAA,gDAA0B;AAE1B,SAAwB,KAAK;IAEzB,OAAO,IAAI,cAAI,EAAE,CAAC;AAEtB,CAAC;AAJD,wBAIC"}

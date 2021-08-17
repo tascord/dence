@@ -1,4 +1,4 @@
-import Dence from "..";
+import Dence from "../../dist";
 
 const dence = Dence();
 dence.listen(3000)

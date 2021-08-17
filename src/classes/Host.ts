@@ -3,8 +3,6 @@ import Http, { IncomingMessage, RequestListener, ServerResponse } from "http";
 import Response from "./Response";
 import Settings from "./Settings";
 
-import { version } from "../package.json";
-
 export type Request = {
 
     app: Host,
@@ -42,7 +40,6 @@ class Host extends EventEmitter {
 
     })
 
-
     request = (raw_request: IncomingMessage, raw_response: ServerResponse) => {
 
         let buffer_body = '';
@@ -61,7 +58,7 @@ class Host extends EventEmitter {
             }
             
             const response: Response = new Response(raw_response);
-            if(this.settings.get('poweredBy')) response.setHeader('X-Powered-By', 'Dence/' + version)
+            if(this.settings.get('poweredBy')) response.setHeader('X-Powered-By', 'Dence/NodeJS');
 
             this.emit('GET', request, response);
 

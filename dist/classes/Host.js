@@ -22,7 +22,6 @@ var events_1 = __importDefault(require("events"));
 var http_1 = __importDefault(require("http"));
 var Response_1 = __importDefault(require("./Response"));
 var Settings_1 = __importDefault(require("./Settings"));
-var package_json_1 = require("../package.json");
 var Host = /** @class */ (function (_super) {
     __extends(Host, _super);
     function Host() {
@@ -45,7 +44,7 @@ var Host = /** @class */ (function (_super) {
                 };
                 var response = new Response_1.default(raw_response);
                 if (_this.settings.get('poweredBy'))
-                    response.setHeader('X-Powered-By', 'Dence/' + package_json_1.version);
+                    response.setHeader('X-Powered-By', 'Dence/NodeJS');
                 _this.emit('GET', request, response);
             });
         };

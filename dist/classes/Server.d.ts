@@ -21,7 +21,10 @@ export declare type Mixin = {
         request: Request;
         response: Response;
     };
-    modify_file?: (file_name: string, content: string, args: object) => string;
+    modify_file?: (file_name: string, content: string, args: object) => {
+        content?: string;
+        content_type?: string;
+    };
 };
 declare interface Server {
     on(event: Method, listener: Listener): this;
@@ -42,6 +45,9 @@ declare class Server extends EventEmitter {
     static path_matcher: (path: string) => RegExp;
     register_mixin: (mixin: Mixin) => void;
     private modify_mixins;
-    modify_file_mixin: (file_name: string, content: string, args: object) => string;
+    modify_file_mixin: (file_name: string, content: string, args: object) => {
+        content: string;
+        content_type: string | undefined;
+    };
 }
 export { Server };

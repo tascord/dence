@@ -24,12 +24,11 @@ function modify(request, response) {
  * @param {string} file_name Path to file
  * @param {string} content File content
  * @param {object} args Provided arguments
- * @returns {string} modified content
  **/
 function modify_file(file_name, content, args) {
 
-    if(file_name.endsWith('.html')) return 'Nothing here....';
-    else return content;
+    if(file_name.endsWith('.html')) return { content: 'Nothing here....' };
+    else return { content };
 
 }
 

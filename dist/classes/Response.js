@@ -42,9 +42,9 @@ var Response = /** @class */ (function () {
             throw new TypeError("Response already concluded.");
         if (!fs_1.existsSync(path))
             throw new TypeError("No file exists at path: " + path);
+        var _a = this.server.modify_file_mixin(path, fs_1.readFileSync(path).toString('utf-8'), args), content = _a.content, content_type = _a.content_type;
         if (!this.raw.getHeader('Content-Type'))
-            this.setHeader('Content-Type', Constants_1.InferContentTypeFromFilename(path));
-        var content = this.server.modify_file_mixin(path, fs_1.readFileSync(path).toString('utf-8'), args);
+            this.setHeader('Content-Type', content_type !== null && content_type !== void 0 ? content_type : Constants_1.InferContentTypeFromFilename(path));
         this.raw.write(content);
         this.end();
         return this;

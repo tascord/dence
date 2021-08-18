@@ -52,7 +52,7 @@ class Response {
         if (this.ended) throw new TypeError("Response already concluded.");
 
         if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', 'text/plain');
-        
+
         this.raw.write(text);
         this.end();
 
@@ -65,9 +65,9 @@ class Response {
         if (this.ended) throw new TypeError("Response already concluded.");
         if (!existsSync(path)) throw new TypeError("No file exists at path: " + path);
 
-        if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', InferContentTypeFromFilename(path));
-        let content = this.server.modify_file_mixin(path, readFileSync(path).toString('utf-8'), args);
-        
+        let { content, content_type } = this.server.modify_file_mixin(path, readFileSync(path).toString('utf-8'), args);
+        if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', content_type ?? InferContentTypeFromFilename(path));
+
         this.raw.write(content);
         this.end();
 

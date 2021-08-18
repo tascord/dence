@@ -209,23 +209,27 @@ var Server = /** @class */ (function (_super) {
         };
         _this.modify_file_mixin = function (file_name, content, args) {
             var e_3, _a;
+            var _b, _c;
             var new_content = content;
+            var content_type = undefined;
             try {
-                for (var _b = __values(_this.mixins), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var mixin = _c.value;
+                for (var _d = __values(_this.mixins), _e = _d.next(); !_e.done; _e = _d.next()) {
+                    var mixin = _e.value;
                     if (!mixin.modify_file)
                         continue;
-                    new_content = mixin.modify_file(file_name, content, args);
+                    var modified = mixin.modify_file(file_name, content, args);
+                    new_content = (_b = modified.content) !== null && _b !== void 0 ? _b : content;
+                    content_type = (_c = modified.content_type) !== null && _c !== void 0 ? _c : content_type;
                 }
             }
             catch (e_3_1) { e_3 = { error: e_3_1 }; }
             finally {
                 try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                    if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
                 }
                 finally { if (e_3) throw e_3.error; }
             }
-            return new_content;
+            return { content: new_content, content_type: content_type };
         };
         _this.settings = new Settings_1.default();
         _this.server = http_1.default.createServer(_this.request);

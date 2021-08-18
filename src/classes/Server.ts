@@ -20,7 +20,7 @@ type ListenerGroup = { [path: string]: Listener };
 export type Mixin = {
     priority: number,
     modify?: (request: Request, response: Response) => { request: Request, response: Response };
-    modify_file?: (file_name: string, content: string, args: object) => string;
+    modify_file?: (file_name: string, content: string, args: object) => { content?: string, content_type?: string };
 }
 
 declare interface Server {
@@ -212,18 +212,24 @@ class Server extends EventEmitter {
 
     }
 
-    public modify_file_mixin = (file_name: string, content: string, args: object): string => {
+    public modify_file_mixin = (file_name: string, content: string, args: object) => {
 
         let new_content = content;
+        let content_type = undefined;
 
         for (let mixin of this.mixins) {
 
             if (!mixin.modify_file) continue;
-            new_content = mixin.modify_file(file_name, content, args);
+
+            const modified = mixin.modify_file(file_name, content, args);
+
+            new_content = modified.content ?? content;
+            content_type = modified.content_type ?? content_type;
+
 
         }
 
-        return new_content;
+        return { content: new_content, content_type };
 
     }
 

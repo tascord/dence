@@ -17,6 +17,11 @@ export type Method = 'POST' | 'GET';
 export type Listener = (request: Request, response: Response) => void;
 type ListenerGroup = { [path: string]: Listener };
 
+export type Mixin = {
+    priority: number,
+    modify: (request: Request, response: Response) => { request: Request, response: Response };
+}
+
 declare interface Server {
     on(event: Method, listener: Listener): this;
     emit(event: Method, request: Request, response: Response): boolean;
@@ -28,6 +33,7 @@ class Server extends EventEmitter {
     public port?: number;
     public settings: Settings;
     private handlers: Map<Method, ListenerGroup>;
+    private mixins: Mixin[];
 
     constructor() {
 
@@ -37,6 +43,7 @@ class Server extends EventEmitter {
         this.server = Http.createServer(this.request as RequestListener);
 
         this.handlers = new Map();
+        this.mixins = [];
 
     }
 
@@ -49,11 +56,13 @@ class Server extends EventEmitter {
 
     private request = (raw_request: IncomingMessage, raw_response: ServerResponse): void => {
 
+        // Read body data
         let buffer_body = '';
         raw_request.on('data', (chunk: any) => {
             buffer_body += chunk;
         })
 
+        // After body has been read 
         raw_request.on('end', () => {
 
             const query_parameters: Request["query"] = {};
@@ -82,7 +91,8 @@ class Server extends EventEmitter {
 
             });
 
-            const request: Request = {
+            // Create request
+            let request: Request = {
 
                 app: this,
                 path: (raw_request.url ?? '/').split('?')[0],
@@ -92,9 +102,21 @@ class Server extends EventEmitter {
 
             }
 
-            const response: Response = new Response(raw_response);
+            // Create response
+            let response: Response = new Response(raw_response);
+
+            // Apply header if setting enabled
             if (this.settings.get('poweredBy')) response.setHeader('X-Powered-By', 'Dence/NodeJS');
 
+            // Run mixins
+            const mutated = this.run_mixins(request, response);
+            request = mutated.request;
+            response = mutated.response;
+
+            // Ignore responses handled by mixins
+            if (response.concluded()) return;
+
+            // Run requests, emitting base event if no handler was supplied
             switch (raw_request.method as Method) {
 
                 case "GET":
@@ -141,17 +163,17 @@ class Server extends EventEmitter {
 
         for (let [path, handler] of handlers) {
 
-            const handler_subpaths = path.split('/'); 
+            const handler_subpaths = path.split('/');
             const request_subpaths = request.path.split('/');
             const param: Request["param"] = {};
 
-            for(let i = 0; i < request_subpaths.length; i++) {
+            for (let i = 0; i < request_subpaths.length; i++) {
 
-                if(handler_subpaths[i][0] === ':') param[handler_subpaths[i].slice(1)] = request_subpaths[i];
+                if (handler_subpaths[i][0] === ':') param[handler_subpaths[i].slice(1)] = request_subpaths[i];
 
             }
 
-            handler({...request, param}, response);
+            handler({ ...request, param }, response);
         }
 
         return true;
@@ -161,6 +183,30 @@ class Server extends EventEmitter {
     public static path_matcher = (path: string): RegExp => {
 
         return RegExp('^' + path.split('/').map(ps => `(${ps}|\\*|:[^/]+)`).join('\\/') + '(?:\\/|)$');
+
+    }
+
+    public register_mixin = (mixin: Mixin): void => {
+
+        this.mixins.push(mixin);
+        this.mixins = this.mixins.sort((a, b) => b.priority - a.priority);
+
+    }
+
+    private run_mixins = (request: Request, response: Response) => {
+
+        for (let mixin of this.mixins) {
+
+            const modified = mixin.modify(request, response);
+
+            request = modified.request;
+            response = modified.response;
+
+            if (response.concluded()) break;
+
+        }
+
+        return { request, response };
 
     }
 

@@ -15,5 +15,6 @@ declare class Response {
     text(text: string): Response;
     sendFile(path: string): Response;
     end(text?: string): void;
+    concluded(): boolean;
 }
 export default Response;

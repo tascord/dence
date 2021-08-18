@@ -15,6 +15,13 @@ export declare type Request = {
 };
 export declare type Method = 'POST' | 'GET';
 export declare type Listener = (request: Request, response: Response) => void;
+export declare type Mixin = {
+    priority: number;
+    modify: (request: Request, response: Response) => {
+        request: Request;
+        response: Response;
+    };
+};
 declare interface Server {
     on(event: Method, listener: Listener): this;
     emit(event: Method, request: Request, response: Response): boolean;
@@ -24,6 +31,7 @@ declare class Server extends EventEmitter {
     port?: number;
     settings: Settings;
     private handlers;
+    private mixins;
     constructor();
     listen: (port: number) => Promise<Server>;
     private request;
@@ -31,5 +39,7 @@ declare class Server extends EventEmitter {
     post: (path: string, listener: Listener) => void;
     private run_handler;
     static path_matcher: (path: string) => RegExp;
+    register_mixin: (mixin: Mixin) => void;
+    private run_mixins;
 }
 export { Server };

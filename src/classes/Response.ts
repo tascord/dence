@@ -49,6 +49,7 @@ class Response {
         if (this.ended) throw new TypeError("Response already concluded.");
 
         if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', 'text/plain');
+        
         this.raw.write(text);
         this.end();
 
@@ -87,6 +88,10 @@ class Response {
         this.raw.end();
         this.ended = true;
 
+    }
+
+    public concluded(): boolean {
+        return this.ended;
     }
 
 }

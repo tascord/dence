@@ -70,10 +70,12 @@ var Server = /** @class */ (function (_super) {
             _this.server.listen(port, function () { return resolve(_this); });
         }); };
         _this.request = function (raw_request, raw_response) {
+            // Read body data
             var buffer_body = '';
             raw_request.on('data', function (chunk) {
                 buffer_body += chunk;
             });
+            // After body has been read 
             raw_request.on('end', function () {
                 var _a, _b, _c;
                 var query_parameters = {};
@@ -95,6 +97,7 @@ var Server = /** @class */ (function (_super) {
                     // Add value to current value array
                     query_parameters[key].push(value);
                 });
+                // Create request
                 var request = {
                     app: _this,
                     path: ((_c = raw_request.url) !== null && _c !== void 0 ? _c : '/').split('?')[0],
@@ -102,9 +105,19 @@ var Server = /** @class */ (function (_super) {
                     query: query_parameters,
                     param: {},
                 };
+                // Create response
                 var response = new Response_1.default(raw_response);
+                // Apply header if setting enabled
                 if (_this.settings.get('poweredBy'))
                     response.setHeader('X-Powered-By', 'Dence/NodeJS');
+                // Run mixins
+                var mutated = _this.run_mixins(request, response);
+                request = mutated.request;
+                response = mutated.response;
+                // Ignore responses handled by mixins
+                if (response.concluded())
+                    return;
+                // Run requests, emitting base event if no handler was supplied
                 switch (raw_request.method) {
                     case "GET":
                         if (!_this.run_handler(raw_request.method, request, response))
@@ -167,9 +180,35 @@ var Server = /** @class */ (function (_super) {
             }
             return true;
         };
+        _this.register_mixin = function (mixin) {
+            _this.mixins.push(mixin);
+            _this.mixins = _this.mixins.sort(function (a, b) { return b.priority - a.priority; });
+        };
+        _this.run_mixins = function (request, response) {
+            var e_2, _a;
+            try {
+                for (var _b = __values(_this.mixins), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var mixin = _c.value;
+                    var modified = mixin.modify(request, response);
+                    request = modified.request;
+                    response = modified.response;
+                    if (response.concluded())
+                        break;
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+            return { request: request, response: response };
+        };
         _this.settings = new Settings_1.default();
         _this.server = http_1.default.createServer(_this.request);
         _this.handlers = new Map();
+        _this.mixins = [];
         return _this;
     }
     Server.path_matcher = function (path) {

@@ -60,6 +60,9 @@ var Response = /** @class */ (function () {
         this.raw.end();
         this.ended = true;
     };
+    Response.prototype.concluded = function () {
+        return this.ended;
+    };
     return Response;
 }());
 exports.default = Response;

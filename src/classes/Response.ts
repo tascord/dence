@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "fs";
 import { ServerResponse } from "http";
 import { ContentType, CORSHeaders, InferContentTypeFromFilename } from "../Constants";
+import { Server } from "./Server";
 
 declare interface Response {
     setHeader(header: 'Content-Type', value: ContentType): Response;
@@ -10,13 +11,15 @@ declare interface Response {
 
 class Response {
 
+    private server: Server;
     private raw: ServerResponse;
     private ended: boolean;
 
-    constructor(raw: ServerResponse) {
+    constructor(server: Server, raw: ServerResponse) {
 
         this.raw = raw;
         this.ended = false;
+        this.server = server;
 
     }
 
@@ -57,14 +60,15 @@ class Response {
 
     }
 
-    public sendFile(path: string): Response {
+    public sendFile(path: string, args: object = {}): Response {
 
         if (this.ended) throw new TypeError("Response already concluded.");
         if (!existsSync(path)) throw new TypeError("No file exists at path: " + path);
 
         if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', InferContentTypeFromFilename(path));
-
-        this.raw.write(readFileSync(path));
+        let content = this.server.modify_file_mixin(path, readFileSync(path).toString('utf-8'), args);
+        
+        this.raw.write(content);
         this.end();
 
         return this;

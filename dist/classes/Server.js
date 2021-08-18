@@ -99,19 +99,19 @@ var Server = /** @class */ (function (_super) {
                 });
                 // Create request
                 var request = {
-                    app: _this,
+                    server: _this,
                     path: ((_c = raw_request.url) !== null && _c !== void 0 ? _c : '/').split('?')[0],
                     body: buffer_body.toString(),
                     query: query_parameters,
                     param: {},
                 };
                 // Create response
-                var response = new Response_1.default(raw_response);
+                var response = new Response_1.default(_this, raw_response);
                 // Apply header if setting enabled
                 if (_this.settings.get('poweredBy'))
                     response.setHeader('X-Powered-By', 'Dence/NodeJS');
                 // Run mixins
-                var mutated = _this.run_mixins(request, response);
+                var mutated = _this.modify_mixins(request, response);
                 request = mutated.request;
                 response = mutated.response;
                 // Ignore responses handled by mixins
@@ -184,11 +184,13 @@ var Server = /** @class */ (function (_super) {
             _this.mixins.push(mixin);
             _this.mixins = _this.mixins.sort(function (a, b) { return b.priority - a.priority; });
         };
-        _this.run_mixins = function (request, response) {
+        _this.modify_mixins = function (request, response) {
             var e_2, _a;
             try {
                 for (var _b = __values(_this.mixins), _c = _b.next(); !_c.done; _c = _b.next()) {
                     var mixin = _c.value;
+                    if (!mixin.modify)
+                        continue;
                     var modified = mixin.modify(request, response);
                     request = modified.request;
                     response = modified.response;
@@ -204,6 +206,26 @@ var Server = /** @class */ (function (_super) {
                 finally { if (e_2) throw e_2.error; }
             }
             return { request: request, response: response };
+        };
+        _this.modify_file_mixin = function (file_name, content, args) {
+            var e_3, _a;
+            var new_content = content;
+            try {
+                for (var _b = __values(_this.mixins), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var mixin = _c.value;
+                    if (!mixin.modify_file)
+                        continue;
+                    new_content = mixin.modify_file(file_name, content, args);
+                }
+            }
+            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_3) throw e_3.error; }
+            }
+            return new_content;
         };
         _this.settings = new Settings_1.default();
         _this.server = http_1.default.createServer(_this.request);

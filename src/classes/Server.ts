@@ -5,7 +5,7 @@ import Settings from "./Settings";
 
 export type Request = {
 
-    app: Server,
+    server: Server,
     path: string,
     body: string,
     query: { [key: string]: string | boolean | Array<string | boolean> },
@@ -19,7 +19,8 @@ type ListenerGroup = { [path: string]: Listener };
 
 export type Mixin = {
     priority: number,
-    modify: (request: Request, response: Response) => { request: Request, response: Response };
+    modify?: (request: Request, response: Response) => { request: Request, response: Response };
+    modify_file?: (file_name: string, content: string, args: object) => string;
 }
 
 declare interface Server {
@@ -94,7 +95,7 @@ class Server extends EventEmitter {
             // Create request
             let request: Request = {
 
-                app: this,
+                server: this,
                 path: (raw_request.url ?? '/').split('?')[0],
                 body: buffer_body.toString(),
                 query: query_parameters,
@@ -103,13 +104,13 @@ class Server extends EventEmitter {
             }
 
             // Create response
-            let response: Response = new Response(raw_response);
+            let response: Response = new Response(this, raw_response);
 
             // Apply header if setting enabled
             if (this.settings.get('poweredBy')) response.setHeader('X-Powered-By', 'Dence/NodeJS');
 
             // Run mixins
-            const mutated = this.run_mixins(request, response);
+            const mutated = this.modify_mixins(request, response);
             request = mutated.request;
             response = mutated.response;
 
@@ -193,10 +194,11 @@ class Server extends EventEmitter {
 
     }
 
-    private run_mixins = (request: Request, response: Response) => {
+    private modify_mixins = (request: Request, response: Response) => {
 
         for (let mixin of this.mixins) {
 
+            if (!mixin.modify) continue;
             const modified = mixin.modify(request, response);
 
             request = modified.request;
@@ -207,6 +209,21 @@ class Server extends EventEmitter {
         }
 
         return { request, response };
+
+    }
+
+    public modify_file_mixin = (file_name: string, content: string, args: object): string => {
+
+        let new_content = content;
+
+        for (let mixin of this.mixins) {
+
+            if (!mixin.modify_file) continue;
+            new_content = mixin.modify_file(file_name, content, args);
+
+        }
+
+        return new_content;
 
     }
 

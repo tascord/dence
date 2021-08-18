@@ -3,9 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 var Constants_1 = require("../Constants");
 var Response = /** @class */ (function () {
-    function Response(raw) {
+    function Response(server, raw) {
         this.raw = raw;
         this.ended = false;
+        this.server = server;
     }
     Response.prototype.status = function (code) {
         if (this.ended)
@@ -35,14 +36,16 @@ var Response = /** @class */ (function () {
         this.end();
         return this;
     };
-    Response.prototype.sendFile = function (path) {
+    Response.prototype.sendFile = function (path, args) {
+        if (args === void 0) { args = {}; }
         if (this.ended)
             throw new TypeError("Response already concluded.");
         if (!fs_1.existsSync(path))
             throw new TypeError("No file exists at path: " + path);
         if (!this.raw.getHeader('Content-Type'))
             this.setHeader('Content-Type', Constants_1.InferContentTypeFromFilename(path));
-        this.raw.write(fs_1.readFileSync(path));
+        var content = this.server.modify_file_mixin(path, fs_1.readFileSync(path).toString('utf-8'), args);
+        this.raw.write(content);
         this.end();
         return this;
     };

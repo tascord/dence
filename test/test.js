@@ -14,7 +14,7 @@ Server.register_mixin(example_mixin);
 Server.get('/user/:id', (req, res) => {
 
     console.log(`New user page request: ${req.param.id}`);
-    res.status(200).end(`User '${req.param.id}' found!`);
+    res.status(200).end(`User '${req.param.id}' eliminated!`);
 
 });
 

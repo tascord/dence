@@ -3,7 +3,7 @@ import EventEmitter from "events";
 import Response from "./Response";
 import Settings from "./Settings";
 export declare type Request = {
-    app: Server;
+    server: Server;
     path: string;
     body: string;
     query: {
@@ -17,10 +17,11 @@ export declare type Method = 'POST' | 'GET';
 export declare type Listener = (request: Request, response: Response) => void;
 export declare type Mixin = {
     priority: number;
-    modify: (request: Request, response: Response) => {
+    modify?: (request: Request, response: Response) => {
         request: Request;
         response: Response;
     };
+    modify_file?: (file_name: string, content: string, args: object) => string;
 };
 declare interface Server {
     on(event: Method, listener: Listener): this;
@@ -40,6 +41,7 @@ declare class Server extends EventEmitter {
     private run_handler;
     static path_matcher: (path: string) => RegExp;
     register_mixin: (mixin: Mixin) => void;
-    private run_mixins;
+    private modify_mixins;
+    modify_file_mixin: (file_name: string, content: string, args: object) => string;
 }
 export { Server };

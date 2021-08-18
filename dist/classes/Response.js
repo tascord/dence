@@ -50,11 +50,13 @@ var Response = /** @class */ (function () {
         this.raw.setHeader(header, value);
         return this;
     };
-    Response.prototype.end = function () {
+    Response.prototype.end = function (text) {
         if (this.ended)
             return;
         if (!this.raw.getHeader('Content-Type'))
-            this.raw.setHeader('Content-Type', 'text/plain');
+            this.setHeader('Content-Type', 'text/plain');
+        if (text)
+            this.text(text);
         this.raw.end();
         this.ended = true;
     };

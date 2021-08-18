@@ -5,10 +5,11 @@ import Settings from "./Settings";
 
 export type Request = {
 
-    app: Host,
+    app: Server,
     path: string,
     body: string,
-    query: { [key: string]: string | boolean | Array<string | boolean> }
+    query: { [key: string]: string | boolean | Array<string | boolean> },
+    param: { [parameter: string]: string }
 
 }
 
@@ -16,12 +17,12 @@ export type Method = 'POST' | 'GET';
 export type Listener = (request: Request, response: Response) => void;
 type ListenerGroup = { [path: string]: Listener };
 
-declare interface Host {
+declare interface Server {
     on(event: Method, listener: Listener): this;
     emit(event: Method, request: Request, response: Response): boolean;
 }
 
-class Host extends EventEmitter {
+class Server extends EventEmitter {
 
     private server: Http.Server;
     public port?: number;
@@ -39,7 +40,7 @@ class Host extends EventEmitter {
 
     }
 
-    public listen = (port: number): Promise<Host> => new Promise((resolve) => {
+    public listen = (port: number): Promise<Server> => new Promise((resolve) => {
 
         this.port = port;
         this.server.listen(port, () => resolve(this));
@@ -86,24 +87,22 @@ class Host extends EventEmitter {
                 app: this,
                 path: (raw_request.url ?? '/').split('?')[0],
                 body: buffer_body.toString(),
-                query: query_parameters
+                query: query_parameters,
+                param: {},
 
             }
 
             const response: Response = new Response(raw_response);
             if (this.settings.get('poweredBy')) response.setHeader('X-Powered-By', 'Dence/NodeJS');
 
-            let handler_group = this.handlers.get(raw_request.method as Method);
             switch (raw_request.method as Method) {
 
                 case "GET":
-                    if (handler_group && handler_group[request.path]) handler_group[request.path](request, response);
-                    this.emit('GET', request, response);
+                    if (!this.run_handler(raw_request.method as Method, request, response)) this.emit('GET', request, response);
                     break;
 
                 case "POST":
-                    if (handler_group && handler_group[request.path]) handler_group[request.path](request, response);
-                    this.emit('GET', request, response);
+                    if (!this.run_handler(raw_request.method as Method, request, response)) this.emit('GET', request, response);
                     break;
 
             }
@@ -125,6 +124,46 @@ class Host extends EventEmitter {
         this.handlers.set('POST', value);
     }
 
+    private run_handler = (method: Method, request: Request, response: Response): boolean => {
+
+        let handler_group = this.handlers.get(method);
+        if (!handler_group) return false;
+
+        const regex = Server.path_matcher(request.path);
+        const handlers = Object.entries(handler_group)
+            .filter(([path, _]) => regex.test(path))
+
+        if (handlers.length === 0) return false;
+
+        if (handlers.length > 1 && this.settings.get("disallowMultipleHandlers")) {
+            throw new Error(`Multiple handlers exist for path: ${request.path}`);
+        }
+
+        for (let [path, handler] of handlers) {
+
+            const handler_subpaths = path.split('/'); 
+            const request_subpaths = request.path.split('/');
+            const param: Request["param"] = {};
+
+            for(let i = 0; i < request_subpaths.length; i++) {
+
+                if(handler_subpaths[i][0] === ':') param[handler_subpaths[i].slice(1)] = request_subpaths[i];
+
+            }
+
+            handler({...request, param}, response);
+        }
+
+        return true;
+
+    }
+
+    public static path_matcher = (path: string): RegExp => {
+
+        return RegExp('^' + path.split('/').map(ps => `(${ps}|\\*|:[^/]+)`).join('\\/') + '(?:\\/|)$');
+
+    }
+
 }
 
-export default Host;
+export { Server };

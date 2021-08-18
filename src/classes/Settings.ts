@@ -1,6 +1,7 @@
 const defaults = {
 
     "poweredBy": true,
+    "disallowMultipleHandlers": true,
 
 }
 

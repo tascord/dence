@@ -77,11 +77,12 @@ class Response {
 
     }
 
-    public end() {
+    public end(text?: string) {
 
         if (this.ended) return;
 
-        if (!this.raw.getHeader('Content-Type')) this.raw.setHeader('Content-Type', 'text/plain');
+        if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', 'text/plain');
+        if (text) this.text(text);
 
         this.raw.end();
         this.ended = true;

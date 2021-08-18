@@ -14,6 +14,6 @@ declare class Response {
     json(json: object, extended?: boolean): Response;
     text(text: string): Response;
     sendFile(path: string): Response;
-    end(): void;
+    end(text?: string): void;
 }
 export default Response;

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var defaults = {
     "poweredBy": true,
+    "disallowMultipleHandlers": true,
 };
 var Settings = /** @class */ (function () {
     function Settings() {

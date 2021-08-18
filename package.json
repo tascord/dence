@@ -1,10 +1,12 @@
 {
   "name": "dence",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
-  "main": "dist/Dence.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "develop": "tsc-watch --project . --onSuccess \"nodemon dist/test/test.js\""
+    "prepublish": "tsc --project .",
+    "develop": "tsc-watch --project . --onSuccess \"nodemon test/test.js\""
   },
   "author": "tascord",
   "license": "ISC",

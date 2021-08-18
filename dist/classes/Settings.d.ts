@@ -1,5 +1,6 @@
 declare const defaults: {
     poweredBy: boolean;
+    disallowMultipleHandlers: boolean;
 };
 declare class Settings {
     values: typeof defaults;

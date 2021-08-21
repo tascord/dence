@@ -9,6 +9,7 @@ export type Request = {
     path: string,
     body: string,
     query: { [key: string]: string | boolean | Array<string | boolean> },
+    method: Method,
     param: { [parameter: string]: string }
 
 }
@@ -99,6 +100,7 @@ class Server extends EventEmitter {
                 path: (raw_request.url ?? '/').split('?')[0],
                 body: buffer_body.toString(),
                 query: query_parameters,
+                method: raw_request.method as Method,
                 param: {},
 
             }
@@ -118,17 +120,7 @@ class Server extends EventEmitter {
             if (response.concluded()) return;
 
             // Run requests, emitting base event if no handler was supplied
-            switch (raw_request.method as Method) {
-
-                case "GET":
-                    if (!this.run_handler(raw_request.method as Method, request, response)) this.emit('GET', request, response);
-                    break;
-
-                case "POST":
-                    if (!this.run_handler(raw_request.method as Method, request, response)) this.emit('GET', request, response);
-                    break;
-
-            }
+            if (!this.run_handler(request.method, request, response)) this.emit(request.method, request, response);
 
         });
 

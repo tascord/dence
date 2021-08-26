@@ -18,6 +18,13 @@ Server.get('/user/:id', (req, res) => {
 
 });
 
+// Redirects!
+Server.get('/redirect', (req, res) => {
+
+    res.redirect('/');
+
+})
+
 // Handles any requests not handled by <Server>.get.
 Server.on('GET', (req, res) => {
 

@@ -49,6 +49,12 @@ var Response = /** @class */ (function () {
         this.end();
         return this;
     };
+    Response.prototype.redirect = function (path, permanent) {
+        if (permanent === void 0) { permanent = false; }
+        this.status(permanent ? 308 : 307)
+            .setHeader('Location', path)
+            .end();
+    };
     Response.prototype.setHeader = function (header, value) {
         this.raw.setHeader(header, value);
         return this;

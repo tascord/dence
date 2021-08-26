@@ -16,6 +16,7 @@ declare class Response {
     json(json: object, extended?: boolean): Response;
     text(text: string): Response;
     sendFile(path: string, args?: object): Response;
+    redirect(path: string, permanent?: boolean): void;
     end(text?: string): void;
     concluded(): boolean;
 }

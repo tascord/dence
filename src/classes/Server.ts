@@ -183,7 +183,7 @@ class Server extends EventEmitter {
 
     public static path_matcher = (path: string): RegExp => {
 
-        return RegExp('^' + path.split('/').map(ps => `(${ps}|\\*|:[^/]+)`).join('\\/') + '(?:\\/|)$');
+        return RegExp('^' + path.replace(/[-|\\{}()[\]^$+*?.]/g, '\\$&').split('/').map(ps => `(${ps}|\\*|:[^/]+)`).join('\\/') + '(?:\\/|)$');
 
     }
 

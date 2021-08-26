@@ -238,7 +238,7 @@ var Server = /** @class */ (function (_super) {
         return _this;
     }
     Server.path_matcher = function (path) {
-        return RegExp('^' + path.split('/').map(function (ps) { return "(" + ps + "|\\*|:[^/]+)"; }).join('\\/') + '(?:\\/|)$');
+        return RegExp('^' + path.replace(/[-|\\{}()[\]^$+*?.]/g, '\\$&').split('/').map(function (ps) { return "(" + ps + "|\\*|:[^/]+)"; }).join('\\/') + '(?:\\/|)$');
     };
     return Server;
 }(events_1.default));

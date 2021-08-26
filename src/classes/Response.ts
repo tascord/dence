@@ -75,6 +75,14 @@ class Response {
 
     }
 
+    public redirect(path: string, permanent: boolean = false) {
+
+        this.status(permanent ? 308 : 307)
+            .setHeader('Location', path)
+            .end();
+
+    }
+
     public setHeader(header: string, value: string): Response {
 
         this.raw.setHeader(header, value);

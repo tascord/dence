@@ -103,6 +103,7 @@ var Server = /** @class */ (function (_super) {
                     path: ((_c = raw_request.url) !== null && _c !== void 0 ? _c : '/').split('?')[0],
                     body: buffer_body.toString(),
                     query: query_parameters,
+                    method: raw_request.method,
                     param: {},
                 };
                 // Create response
@@ -118,16 +119,8 @@ var Server = /** @class */ (function (_super) {
                 if (response.concluded())
                     return;
                 // Run requests, emitting base event if no handler was supplied
-                switch (raw_request.method) {
-                    case "GET":
-                        if (!_this.run_handler(raw_request.method, request, response))
-                            _this.emit('GET', request, response);
-                        break;
-                    case "POST":
-                        if (!_this.run_handler(raw_request.method, request, response))
-                            _this.emit('GET', request, response);
-                        break;
-                }
+                if (!_this.run_handler(request.method, request, response))
+                    _this.emit(request.method, request, response);
             });
         };
         _this.get = function (path, listener) {

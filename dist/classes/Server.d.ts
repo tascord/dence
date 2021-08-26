@@ -9,6 +9,7 @@ export declare type Request = {
     query: {
         [key: string]: string | boolean | Array<string | boolean>;
     };
+    method: Method;
     param: {
         [parameter: string]: string;
     };

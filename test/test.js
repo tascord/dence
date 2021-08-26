@@ -3,7 +3,7 @@ const { Dence } = require('../dist');
 
 // Create instance
 const Server = Dence();
-Server.listen(process.env.PORT || 3000)
+Server.listen(process.env.PORT || 5000)
     .then(() => console.log(`Server online @ http://localhost:${Server.port}/`));
 
 // Use example mixin
@@ -30,4 +30,10 @@ Server.on('GET', (req, res) => {
 
     res.sendFile(join(__dirname, 'index.html'));
 
+});
+
+Server.on('POST', (req, res) => {
+
+    res.status(404).end('Post more like uhh, toast...');
+    
 });

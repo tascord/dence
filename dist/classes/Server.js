@@ -105,6 +105,7 @@ var Server = /** @class */ (function (_super) {
                     query: query_parameters,
                     method: raw_request.method,
                     param: {},
+                    headers: raw_request.headers
                 };
                 // Create response
                 var response = new Response_1.default(_this, raw_response);

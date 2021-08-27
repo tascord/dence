@@ -6,7 +6,7 @@ import { Server } from "./Server";
 declare interface Response {
     setHeader(header: 'Content-Type', value: ContentType): Response;
     setHeader(header: 'Age', value: `Age: ${number}`): Response;
-    setHeader(header: CORSHeaders, value: `${CORSHeaders}: ${'*' | string}`): Response
+    setHeader(header: CORSHeaders, value: `${CORSHeaders}: ${'*' | string}`): Response;
 }
 
 class Response {

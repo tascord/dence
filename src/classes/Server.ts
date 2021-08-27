@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import Http, { IncomingMessage, RequestListener, ServerResponse } from "http";
+import Http, { IncomingHttpHeaders, IncomingMessage, RequestListener, ServerResponse } from "http";
 import Response from "./Response";
 import Settings from "./Settings";
 
@@ -10,7 +10,8 @@ export type Request = {
     body: string,
     query: { [key: string]: string | boolean | Array<string | boolean> },
     method: Method,
-    param: { [parameter: string]: string }
+    param: { [parameter: string]: string },
+    headers: IncomingHttpHeaders
 
 }
 
@@ -93,6 +94,7 @@ class Server extends EventEmitter {
 
             });
 
+
             // Create request
             let request: Request = {
 
@@ -102,6 +104,7 @@ class Server extends EventEmitter {
                 query: query_parameters,
                 method: raw_request.method as Method,
                 param: {},
+                headers: raw_request.headers
 
             }
 

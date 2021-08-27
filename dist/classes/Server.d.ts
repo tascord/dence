@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import EventEmitter from "events";
+import { IncomingHttpHeaders } from "http";
 import Response from "./Response";
 import Settings from "./Settings";
 export declare type Request = {
@@ -13,6 +14,7 @@ export declare type Request = {
     param: {
         [parameter: string]: string;
     };
+    headers: IncomingHttpHeaders;
 };
 export declare type Method = 'POST' | 'GET';
 export declare type Listener = (request: Request, response: Response) => void;

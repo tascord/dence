@@ -20,20 +20,14 @@ Server.get('/user/:id', (req, res) => {
 
 // Redirects!
 Server.get('/redirect', (req, res) => {
-
     res.redirect('/');
-
 })
 
 // Handles any requests not handled by <Server>.get.
 Server.on('GET', (req, res) => {
-
     res.sendFile(join(__dirname, 'index.html'));
-
 });
 
 Server.on('POST', (req, res) => {
-
     res.status(404).end('Post more like uhh, toast...');
-    
 });

@@ -1088,7 +1088,6 @@ export const MimeTypes: { [ContentType: string]: string[] } = {
     ]
 }
 
-
 export function InferContentTypeFromFilename(filename: string): ContentType {
 
     let file_ending = filename.split('.').pop();

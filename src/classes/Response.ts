@@ -65,10 +65,11 @@ class Response {
         if (this.ended) throw new TypeError("Response already concluded.");
         if (!existsSync(path)) throw new TypeError("No file exists at path: " + path);
 
-        let { content, content_type } = this.server.modify_file_mixin(path, readFileSync(path).toString('utf-8'), args);
+        let file = readFileSync(path);
+        let { content, content_type } = this.server.modify_file_mixin(path, file, args);
         if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', content_type ?? InferContentTypeFromFilename(path));
 
-        this.raw.write(content);
+        this.raw.write((this.raw.getHeader('Content-Type')?.toString().startsWith('text/')) ? content.toString() : content);
         this.end();
 
         return this;

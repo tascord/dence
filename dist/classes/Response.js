@@ -37,15 +37,17 @@ var Response = /** @class */ (function () {
         return this;
     };
     Response.prototype.sendFile = function (path, args) {
+        var _a;
         if (args === void 0) { args = {}; }
         if (this.ended)
             throw new TypeError("Response already concluded.");
         if (!fs_1.existsSync(path))
             throw new TypeError("No file exists at path: " + path);
-        var _a = this.server.modify_file_mixin(path, fs_1.readFileSync(path).toString('utf-8'), args), content = _a.content, content_type = _a.content_type;
+        var file = fs_1.readFileSync(path);
+        var _b = this.server.modify_file_mixin(path, file, args), content = _b.content, content_type = _b.content_type;
         if (!this.raw.getHeader('Content-Type'))
             this.setHeader('Content-Type', content_type !== null && content_type !== void 0 ? content_type : Constants_1.InferContentTypeFromFilename(path));
-        this.raw.write(content);
+        this.raw.write(((_a = this.raw.getHeader('Content-Type')) === null || _a === void 0 ? void 0 : _a.toString().startsWith('text/')) ? content.toString() : content);
         this.end();
         return this;
     };

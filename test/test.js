@@ -18,6 +18,11 @@ Server.get('/user/:id', (req, res) => {
 
 });
 
+// Images
+Server.get('/neil', (req, res) => {
+    res.sendFile(join(__dirname, 'neil.png'));
+})
+
 // Redirects!
 Server.get('/redirect', (req, res) => {
     res.redirect('/');

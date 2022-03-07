@@ -10,7 +10,7 @@ var Settings = /** @class */ (function () {
     }
     Settings.prototype.set = function (key, value) {
         if (!this.values[key])
-            throw new TypeError("No value '" + key + "' exists in settings");
+            throw new TypeError("No value '".concat(key, "' exists in settings"));
         this.values[key] = value;
         return this;
     };

@@ -120,8 +120,11 @@ var Server = /** @class */ (function (_super) {
                 if (response.concluded())
                     return;
                 // Run requests, emitting base event if no handler was supplied
-                if (!_this.run_handler(request.method, request, response))
-                    _this.emit(request.method, request, response);
+                if (!_this.run_handler(request.method, request, response)) {
+                    if (!_this.emit(request.method, request, response)) {
+                        response.status(404).end();
+                    }
+                }
             });
         };
         _this.get = function (path, listener) {
@@ -150,7 +153,7 @@ var Server = /** @class */ (function (_super) {
             if (handlers.length === 0)
                 return false;
             if (handlers.length > 1 && _this.settings.get("disallowMultipleHandlers")) {
-                throw new Error("Multiple handlers exist for path: " + request.path);
+                throw new Error("Multiple handlers exist for path: ".concat(request.path));
             }
             try {
                 for (var handlers_1 = __values(handlers), handlers_1_1 = handlers_1.next(); !handlers_1_1.done; handlers_1_1 = handlers_1.next()) {
@@ -232,7 +235,7 @@ var Server = /** @class */ (function (_super) {
         return _this;
     }
     Server.path_matcher = function (path) {
-        return RegExp('^' + path.replace(/[-|\\{}()[\]^$+*?.]/g, '\\$&').split('/').map(function (ps) { return "(" + ps + "|\\*|:[^/]+)"; }).join('\\/') + '(?:\\/|)$');
+        return RegExp('^' + path.replace(/[-|\\{}()[\]^$+*?.]/g, '\\$&').split('/').map(function (ps) { return "(".concat(ps, "|\\*|:[^/]+)"); }).join('\\/') + '(?:\\/|)$');
     };
     return Server;
 }(events_1.default));

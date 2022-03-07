@@ -123,7 +123,11 @@ class Server extends EventEmitter {
             if (response.concluded()) return;
 
             // Run requests, emitting base event if no handler was supplied
-            if (!this.run_handler(request.method, request, response)) this.emit(request.method, request, response);
+            if (!this.run_handler(request.method, request, response)) {
+                if(!this.emit(request.method, request, response)) {
+                    response.status(404).end();
+                }
+            }
 
         });
 

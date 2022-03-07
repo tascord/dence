@@ -1,9 +1,10 @@
-import { Server } from "./classes/Server";
+import { Server, Request } from "./classes/Server";
 import Response from "./classes/Response";
 import Settings from "./classes/Settings";
 
-function Dence() {
+export default function Dence() {
     return new Server();
 }
 
-export { Dence, Server, Response, Settings };
+module.exports = Dence;
+export { Server, Request, Response, Settings };

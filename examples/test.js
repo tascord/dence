@@ -1,5 +1,5 @@
 const { join } = require('path');
-const { Dence } = require('../dist');
+const Dence = require('../dist');
 
 // Create instance
 const Server = Dence();

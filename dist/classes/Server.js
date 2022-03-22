@@ -63,7 +63,7 @@ var Response_1 = __importDefault(require("./Response"));
 var Settings_1 = __importDefault(require("./Settings"));
 var Server = /** @class */ (function (_super) {
     __extends(Server, _super);
-    function Server() {
+    function Server(server) {
         var _this = _super.call(this) || this;
         _this.listen = function (port) { return new Promise(function (resolve) {
             _this.port = port;
@@ -229,7 +229,9 @@ var Server = /** @class */ (function (_super) {
             return { content: new_content, content_type: content_type };
         };
         _this.settings = new Settings_1.default();
-        _this.server = http_1.default.createServer(_this.request);
+        _this.server = server !== null && server !== void 0 ? server : http_1.default.createServer();
+        // Listen
+        _this.server.on('request', function (req, res) { return _this.request(req, res); });
         _this.handlers = new Map();
         _this.mixins = [];
         return _this;

@@ -10,8 +10,13 @@ var Response_1 = __importDefault(require("./classes/Response"));
 exports.Response = Response_1.default;
 var Settings_1 = __importDefault(require("./classes/Settings"));
 exports.Settings = Settings_1.default;
-function Dence() {
-    return new Server_1.Server();
+/**
+ * Dence creator (Call signature)
+ * @param adapt Http Server to host on top of
+ * @returns Dence server
+ */
+function Dence(adapt) {
+    return new Server_1.Server(adapt);
 }
 exports.default = Dence;
 module.exports = Dence;

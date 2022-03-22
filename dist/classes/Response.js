@@ -11,6 +11,10 @@ var Response = /** @class */ (function () {
     Response.prototype.status = function (code) {
         if (this.ended)
             throw new TypeError("Response already concluded.");
+        if (this.raw.writableEnded || this.raw.headersSent) {
+            this.ended = true;
+            return this;
+        }
         if (isNaN(code) || !isFinite(code) || parseInt(code.toString()) != code) {
             throw new TypeError("Invalid status code: " + code);
         }
@@ -21,6 +25,10 @@ var Response = /** @class */ (function () {
         if (extended === void 0) { extended = false; }
         if (this.ended)
             throw new TypeError("Response already concluded.");
+        if (this.raw.writableEnded || this.raw.headersSent) {
+            this.ended = true;
+            return this;
+        }
         if (!this.raw.getHeader('Content-Type'))
             this.setHeader('Content-Type', 'application/json');
         this.raw.write(!extended ? JSON.stringify(json) : JSON.stringify(json, null, 4), "utf8");
@@ -30,6 +38,10 @@ var Response = /** @class */ (function () {
     Response.prototype.text = function (text) {
         if (this.ended)
             throw new TypeError("Response already concluded.");
+        if (this.raw.writableEnded || this.raw.headersSent) {
+            this.ended = true;
+            return this;
+        }
         if (!this.raw.getHeader('Content-Type'))
             this.setHeader('Content-Type', 'text/plain');
         this.raw.write(text);
@@ -41,6 +53,10 @@ var Response = /** @class */ (function () {
         if (args === void 0) { args = {}; }
         if (this.ended)
             throw new TypeError("Response already concluded.");
+        if (this.raw.writableEnded || this.raw.headersSent) {
+            this.ended = true;
+            return this;
+        }
         if (!(0, fs_1.existsSync)(path))
             throw new TypeError("No file exists at path: " + path);
         var file = (0, fs_1.readFileSync)(path);
@@ -58,12 +74,22 @@ var Response = /** @class */ (function () {
             .end();
     };
     Response.prototype.setHeader = function (header, value) {
+        if (this.ended)
+            throw new TypeError("Response already concluded.");
+        if (this.raw.writableEnded || this.raw.headersSent) {
+            this.ended = true;
+            return this;
+        }
         this.raw.setHeader(header, value);
         return this;
     };
     Response.prototype.end = function (text) {
         if (this.ended)
             return;
+        if (this.raw.writableFinished) {
+            this.ended = true;
+            return this;
+        }
         if (!this.raw.getHeader('Content-Type'))
             this.setHeader('Content-Type', 'text/plain');
         if (text)

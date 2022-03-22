@@ -26,6 +26,10 @@ class Response {
     public status(code: number): Response {
 
         if (this.ended) throw new TypeError("Response already concluded.");
+        if (this.raw.writableEnded || this.raw.headersSent) {
+            this.ended = true; return this;
+        }
+
         if (isNaN(code) || !isFinite(code) || parseInt(code.toString()) != code) {
             throw new TypeError("Invalid status code: " + code);
         }
@@ -38,6 +42,9 @@ class Response {
     public json(json: object, extended: boolean = false): Response {
 
         if (this.ended) throw new TypeError("Response already concluded.");
+        if (this.raw.writableEnded || this.raw.headersSent) {
+            this.ended = true; return this;
+        }
 
         if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', 'application/json');
         this.raw.write(!extended ? JSON.stringify(json) : JSON.stringify(json, null, 4), "utf8");
@@ -50,6 +57,9 @@ class Response {
     public text(text: string): Response {
 
         if (this.ended) throw new TypeError("Response already concluded.");
+        if (this.raw.writableEnded || this.raw.headersSent) {
+            this.ended = true; return this;
+        }
 
         if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', 'text/plain');
 
@@ -63,6 +73,10 @@ class Response {
     public sendFile(path: string, args: object = {}): Response {
 
         if (this.ended) throw new TypeError("Response already concluded.");
+        if (this.raw.writableEnded || this.raw.headersSent) {
+            this.ended = true; return this;
+        }
+
         if (!existsSync(path)) throw new TypeError("No file exists at path: " + path);
 
         let file = readFileSync(path);
@@ -86,6 +100,11 @@ class Response {
 
     public setHeader(header: string, value: string): Response {
 
+        if (this.ended) throw new TypeError("Response already concluded.");
+        if (this.raw.writableEnded || this.raw.headersSent) {
+            this.ended = true; return this;
+        }
+
         this.raw.setHeader(header, value);
         return this;
 
@@ -94,6 +113,10 @@ class Response {
     public end(text?: string) {
 
         if (this.ended) return;
+        if (this.raw.writableFinished) {
+            this.ended = true; return this;
+        }
+
 
         if (!this.raw.getHeader('Content-Type')) this.setHeader('Content-Type', 'text/plain');
         if (text) this.text(text);

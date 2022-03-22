@@ -17,7 +17,7 @@ declare class Response {
     text(text: string): Response;
     sendFile(path: string, args?: object): Response;
     redirect(path: string, permanent?: boolean): void;
-    end(text?: string): void;
+    end(text?: string): this | undefined;
     concluded(): boolean;
 }
 export default Response;

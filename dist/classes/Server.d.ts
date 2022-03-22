@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import EventEmitter from "events";
-import { IncomingHttpHeaders } from "http";
+import Http, { IncomingHttpHeaders } from "http";
 import Response from "./Response";
 import Settings from "./Settings";
 export declare type Request = {
@@ -39,7 +39,7 @@ declare class Server extends EventEmitter {
     settings: Settings;
     private handlers;
     private mixins;
-    constructor();
+    constructor(server?: Http.Server);
     listen: (port: number) => Promise<Server>;
     private request;
     get: (path: string, listener: Listener) => void;

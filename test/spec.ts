@@ -3,6 +3,7 @@ import $, { Headers } from 'node-fetch';
 import { join } from 'path';
 import chalk from 'chalk';
 import { render } from 'ejs';
+import Http from "http";
 
 type ValidatorArgs = [Headers, string];
 const tests: {
@@ -13,8 +14,19 @@ const tests: {
     log: string[]
 }[] = [];
 
+// Create HTTP server
+const HttpServer = Http.createServer();
+HttpServer.on('request', (req: Http.IncomingMessage, res: Http.ServerResponse) => {
+    
+    if(req.url === '/http') {
+        res.write('HTTP Success!');
+        res.end();
+    }
+
+})
+
 // Create Dence Server
-const Server = Dence();
+const Server = Dence(HttpServer);
 Server.listen(Number(process.env.PORT || 5000))
     .then(queue_tests);
 
@@ -101,7 +113,7 @@ const test = async (name: string, description: string, handler: (Request, Respon
 
 function queue_tests() {
 
-    console.clear();
+    // console.clear();
 
     test(
         'Test 1', 'Ensure text is sent correctly',
@@ -125,6 +137,12 @@ function queue_tests() {
         'Test 4', 'Ensure file is sent correctly',
         (_req, res) => res.redirect('/r/test.txt'),
         (_headers, body) => body === 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+    )
+
+    test(
+        'Test 5', 'Ensure server creation from http.Server',
+        (_req, res) => res.redirect('/http'),
+        (_headers, body) => body === 'HTTP Success!'
     )
 
 

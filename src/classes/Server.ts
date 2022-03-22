@@ -38,12 +38,15 @@ class Server extends EventEmitter {
     private handlers: Map<Method, ListenerGroup>;
     private mixins: Mixin[];
 
-    constructor() {
+    constructor(server?: Http.Server) {
 
         super();
 
         this.settings = new Settings();
-        this.server = Http.createServer(this.request as RequestListener);
+        this.server = server ?? Http.createServer();
+
+        // Listen
+        this.server.on('request', (req, res) => this.request(req, res));
 
         this.handlers = new Map();
         this.mixins = [];
